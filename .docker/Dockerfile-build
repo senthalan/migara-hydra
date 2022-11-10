@@ -17,7 +17,7 @@ COPY . .
 
 RUN go build -tags sqlite,json1 -o /usr/bin/hydra
 
-FROM nginx:stable-alpine
+FROM nginx:1.23.2-alpine
 
 ARG USER_ID=10001
 ARG USER_GROUP_ID=10001
