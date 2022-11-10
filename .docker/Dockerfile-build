@@ -49,6 +49,4 @@ EXPOSE 4444 4445
 USER ${USER_ID}
 
 ENTRYPOINT ["hydra"]
-CMD ["serve"]
-
-
+CMD ["serve", "all"]
