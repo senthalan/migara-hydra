@@ -22,30 +22,26 @@ FROM nginx:stable-alpine
 ARG USER_ID=10001
 ARG USER_GROUP_ID=10001
 
-#RUN addgroup -S ory; \
-#    adduser -S ory -G ory -D  -h /home/ory -s /bin/nologin; \
-#    chown -R ory:ory /home/ory
-
 RUN addgroup -g ${USER_GROUP_ID} -S ory; \
     adduser -u ${USER_ID} -S ory -G ory -D  -h /home/ory -s /bin/nologin; \
-    chown -R ory:ory /home/ory
+    chown -R ${USER_ID}:${USER_GROUP_ID} /home/ory
 
 COPY --from=builder /usr/bin/hydra /usr/bin/hydra
 COPY default.conf /etc/nginx/conf.d/
 COPY script.sh .
 
-RUN chown -R ory:ory /var/cache/nginx && \
-    chown -R ory:ory /var/log/nginx && \
-    chown -R ory:ory /etc/nginx/conf.d && \
-    chown -R ory:ory script.sh && \
+RUN chown -R ${USER_ID}:${USER_GROUP_ID} /var/cache/nginx && \
+    chown -R ${USER_ID}:${USER_GROUP_ID} /var/log/nginx && \
+    chown -R ${USER_ID}:${USER_GROUP_ID} /etc/nginx/conf.d && \
+    chown -R ${USER_ID}:${USER_GROUP_ID} script.sh && \
     chmod +x script.sh
 RUN touch /var/run/nginx.pid && \
-    chown -R ory:ory /var/run/nginx.pid
+    chown -R ${USER_ID}:${USER_GROUP_ID} /var/run/nginx.pid
 
 # By creating the sqlite folder as the ory user, the mounted volume will be owned by ory:ory, which
 # is required for read/write of SQLite.
 RUN mkdir -p /var/lib/sqlite && \
-    chown ory:ory /var/lib/sqlite
+    chown ${USER_ID}:${USER_GROUP_ID} /var/lib/sqlite
 
 VOLUME /var/lib/sqlite
 
@@ -55,5 +51,5 @@ VOLUME /home/ory
 # Declare the standard ports used by hydra (4444 for public service endpoint, 4445 for admin service endpoint)
 EXPOSE 80 4444 4445
 
-USER ory
+USER ${USER_ID}
 CMD sh script.sh
