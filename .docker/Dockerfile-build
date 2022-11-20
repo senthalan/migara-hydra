@@ -5,7 +5,7 @@ RUN apk -U --no-cache --upgrade --latest add build-base git gcc bash
 WORKDIR /go/src/github.com/ory/hydra
 RUN mkdir -p ./internal/httpclient
 
-COPY go.mod go.sum default.conf script.sh ./
+COPY go.mod go.sum nginx.conf script.sh ./
 COPY internal/httpclient/go.* ./internal/httpclient/
 
 ENV GO111MODULE on
@@ -27,7 +27,7 @@ RUN addgroup -g ${USER_GROUP_ID} -S ory; \
     chown -R ${USER_ID}:${USER_GROUP_ID} /home/ory
 
 COPY --from=builder /usr/bin/hydra /usr/bin/hydra
-COPY default.conf /etc/nginx/conf.d/
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY script.sh .
 
 RUN chown -R ${USER_ID}:${USER_GROUP_ID} /var/cache/nginx && \
@@ -44,6 +44,8 @@ RUN mkdir -p /var/lib/sqlite && \
     chown ${USER_ID}:${USER_GROUP_ID} /var/lib/sqlite
 
 VOLUME /var/lib/sqlite
+VOLUME /var/run
+VOLUME /var/log/nginx
 
 # Exposing the ory home directory
 VOLUME /home/ory
